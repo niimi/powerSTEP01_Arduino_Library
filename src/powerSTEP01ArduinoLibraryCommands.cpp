@@ -5,7 +5,7 @@
 
 // Realize the "set parameter" function, to write to the various registers in
 //  the dSPIN chip.
-void powerSTEP::setParam(byte param, unsigned long value) 
+void powerSTEP::setParam(byte param, unsigned long value)
 {
   param |= SET_PARAM;
   SPIXfer((byte)param);
@@ -27,7 +27,7 @@ long powerSTEP::getParam(byte param)
 long powerSTEP::getPos()
 {
   long temp = getParam(ABS_POS);
-  
+
   // Since ABS_POS is a 22-bit 2's comp value, we need to check bit 21 and, if
   //  it's set, set all the bits ABOVE 21 in order for the value to maintain
   //  its appropriate sign.
@@ -39,7 +39,7 @@ long powerSTEP::getPos()
 long powerSTEP::getMark()
 {
   long temp = getParam(MARK);
-  
+
   // Since ABS_POS is a 22-bit 2's comp value, we need to check bit 21 and, if
   //  it's set, set all the bits ABOVE 21 in order for the value to maintain
   //  its appropriate sign.
@@ -55,26 +55,29 @@ long powerSTEP::getMark()
 //  appropriate integer values for this function.
 void powerSTEP::run(byte dir, float stepsPerSec)
 {
-  SPIXfer(RUN | dir);
+
   unsigned long integerSpeed = spdCalc(stepsPerSec);
+  runRaw(dir, integerSpeed);
+}
+void powerSTEP::runRaw(byte dir, unsigned long integerSpeed) {
+	SPIXfer(RUN | dir);
   if (integerSpeed > 0xFFFFF) integerSpeed = 0xFFFFF;
-  
+
   // Now we need to push this value out to the dSPIN. The 32-bit value is
   //  stored in memory in little-endian format, but the dSPIN expects a
   //  big-endian output, so we need to reverse the byte-order of the
   //  data as we're sending it out. Note that only 3 of the 4 bytes are
   //  valid here.
-  
+
   // We begin by pointing bytePointer at the first byte in integerSpeed.
   byte* bytePointer = (byte*)&integerSpeed;
   // Next, we'll iterate through a for loop, indexing across the bytes in
   //  integerSpeed starting with byte 2 and ending with byte 0.
   for (int8_t i = 2; i >= 0; i--)
   {
-    SPIXfer(bytePointer[i]);
+	  SPIXfer(bytePointer[i]);
   }
 }
-
 // STEP_CLOCK puts the device in external step clocking mode. When active,
 //  pin 25, STCK, becomes the step clock for the device, and steps it in
 //  the direction (set by the FWD and REV constants) imposed by the call
@@ -137,15 +140,21 @@ void powerSTEP::goToDir(byte dir, long pos)
 //  either RESET to 0 or COPY-ed into the MARK register.
 void powerSTEP::goUntil(byte action, byte dir, float stepsPerSec)
 {
-  SPIXfer(GO_UNTIL | action | dir);
   unsigned long integerSpeed = spdCalc(stepsPerSec);
-  if (integerSpeed > 0x3FFFFF) integerSpeed = 0x3FFFFF;
-  // See run() for an explanation of what's going on here.
-  byte* bytePointer = (byte*)&integerSpeed;
-  for (int8_t i = 2; i >= 0; i--)
-  {
-    SPIXfer(bytePointer[i]);
-  }
+  goUntilRaw(action, dir, integerSpeed);
+}
+
+void powerSTEP::goUntilRaw(byte action, byte dir, unsigned long integerSpeed)
+{
+	SPIXfer(GO_UNTIL | action | dir);
+
+	if (integerSpeed > 0x3FFFFF) integerSpeed = 0x3FFFFF;
+	// See run() for an explanation of what's going on here.
+	byte* bytePointer = (byte*)&integerSpeed;
+	for (int8_t i = 2; i >= 0; i--)
+	{
+		SPIXfer(bytePointer[i]);
+	}
 }
 
 // Similar in nature to GoUntil, ReleaseSW produces motion at the
@@ -201,7 +210,7 @@ void powerSTEP::resetDev()
 {
   SPIXfer(RESET_DEVICE);
 }
-  
+
 // Bring the motor to a halt using the deceleration curve.
 void powerSTEP::softStop()
 {

@@ -8,12 +8,12 @@ void powerSTEP::configSyncPin(byte pinFunc, byte syncSteps)
   //  clear those bits. It happens that they are the upper four.
   byte syncPinConfig = (byte)getParam(STEP_MODE);
   syncPinConfig &= 0x0F;
-  
+
   // Now, let's OR in the arguments. We're going to mask the incoming
   //  data to avoid touching any bits that aren't appropriate. See datasheet
   //  for more info about which bits we're touching.
   syncPinConfig |= ((pinFunc & 0x80) | (syncSteps & 0x70));
-  
+
   // Now we should be able to send that byte right back to the dSPIN- it
   //  won't corrupt the other bits, and the changes are made.
   setParam(STEP_MODE, (unsigned long)syncPinConfig);
@@ -28,11 +28,11 @@ void powerSTEP::configStepMode(byte stepMode)
   //  current contents, clear those three bits, then set them accordingly.
   byte stepModeConfig = (byte)getParam(STEP_MODE);
   stepModeConfig &= 0xF8;
-  
+
   // Now we can OR in the new bit settings. Mask the argument so we don't
   //  accidentally the other bits, if the user sends us a non-legit value.
   stepModeConfig |= (stepMode&0x07);
-  
+
   // Now push the change to the chip.
   setParam(STEP_MODE, (unsigned long)stepModeConfig);
 }
@@ -47,15 +47,22 @@ void powerSTEP::setMaxSpeed(float stepsPerSecond)
   // We need to convert the floating point stepsPerSecond into a value that
   //  the dSPIN can understand. Fortunately, we have a function to do that.
   unsigned long integerSpeed = maxSpdCalc(stepsPerSecond);
-  
-  // Now, we can set that paramter.
-  setParam(MAX_SPEED, integerSpeed);
-}
 
+  setMaxSpeedRaw(integerSpeed);
+}
+void powerSTEP::setMaxSpeedRaw(unsigned long integerSpeed)
+{
+	// Now, we can set that paramter.
+	setParam(MAX_SPEED, integerSpeed);
+}
 
 float powerSTEP::getMaxSpeed()
 {
-  return maxSpdParse(getParam(MAX_SPEED));
+  return maxSpdParse(getMaxSpeedRaw());
+}
+unsigned long powerSTEP::getMaxSpeedRaw()
+{
+	return getParam(MAX_SPEED);
 }
 
 // Set the minimum speed allowable in the system. This is the speed a motion
@@ -66,30 +73,45 @@ void powerSTEP::setMinSpeed(float stepsPerSecond)
   // We need to convert the floating point stepsPerSecond into a value that
   //  the dSPIN can understand. Fortunately, we have a function to do that.
   unsigned long integerSpeed = minSpdCalc(stepsPerSecond);
-  
-  // MIN_SPEED also contains the LSPD_OPT flag, so we need to protect that.
-  unsigned long temp = getParam(MIN_SPEED) & 0x00001000;
-  
-  // Now, we can set that paramter.
-  setParam(MIN_SPEED, integerSpeed | temp);
+
+  setMinSpeedRaw(integerSpeed);
+}
+void powerSTEP::setMinSpeedRaw(unsigned long integerSpeed)
+{
+	// MIN_SPEED also contains the LSPD_OPT flag, so we need to protect that.
+	unsigned long temp = getParam(MIN_SPEED) & 0x00001000;
+
+	// Now, we can set that paramter.
+	setParam(MIN_SPEED, integerSpeed | temp);
 }
 
 float powerSTEP::getMinSpeed()
 {
-  return minSpdParse(getParam(MIN_SPEED));
+  return minSpdParse(getMinSpeedRaw());
 }
-
+unsigned long powerSTEP::getMinSpeedRaw()
+{
+	return getParam(MIN_SPEED);
+}
 // Above this threshold, the dSPIN will cease microstepping and go to full-step
-//  mode. 
+//  mode.
 void powerSTEP::setFullSpeed(float stepsPerSecond)
 {
   unsigned long integerSpeed = FSCalc(stepsPerSecond);
-  setParam(FS_SPD, integerSpeed);
+  setFullSpeedRaw(integerSpeed);
+}
+void powerSTEP::setFullSpeedRaw(unsigned long integerSpeed)
+{
+	setParam(FS_SPD, integerSpeed);
 }
 
 float powerSTEP::getFullSpeed()
 {
-  return FSParse(getParam(FS_SPD));
+  return FSParse(getFullSpeedRaw());
+}
+unsigned long powerSTEP::getFullSpeedRaw()
+{
+	return getParam(FS_SPD);
 }
 
 // Set the acceleration rate, in steps per second per second. This value is
@@ -98,24 +120,41 @@ float powerSTEP::getFullSpeed()
 void powerSTEP::setAcc(float stepsPerSecondPerSecond)
 {
   unsigned long integerAcc = accCalc(stepsPerSecondPerSecond);
-  setParam(ACC, integerAcc);
+  setAccRaw(integerAcc);
+}
+void powerSTEP::setAccRaw(unsigned long integerAcc)
+{
+	setParam(ACC, integerAcc);
 }
 
 float powerSTEP::getAcc()
 {
-  return accParse(getParam(ACC));
+  return accParse(getAccRaw());
+}
+
+unsigned long powerSTEP::getAccRaw()
+{
+	return getParam(ACC);
 }
 
 // Same rules as setAcc().
 void powerSTEP::setDec(float stepsPerSecondPerSecond)
 {
   unsigned long integerDec = decCalc(stepsPerSecondPerSecond);
-  setParam(DECEL, integerDec);
+  setDecRaw(integerDec);
+}
+void powerSTEP::setDecRaw(unsigned long integerDec)
+{
+	setParam(DECEL, integerDec);
 }
 
 float powerSTEP::getDec()
 {
-  return accParse(getParam(DECEL));
+  return decParse(getDecRaw());
+}
+unsigned long powerSTEP::getDecRaw()
+{
+	return getParam(DECEL);
 }
 
 void powerSTEP::setOCThreshold(byte threshold)
@@ -139,7 +178,7 @@ byte powerSTEP::getOCThreshold()
 void powerSTEP::setPWMFreq(int divisor, int multiplier)
 {
   unsigned long configVal = getParam(CONFIG);
-  
+
   // The divisor is set by config 15:13, so mask 0xE000 to clear them.
   configVal &= ~(0xE000);
   // The multiplier is set by config 12:10; mask is 0x1C00
@@ -163,7 +202,7 @@ int powerSTEP::getPWMFreqMultiplier()
 void powerSTEP::setSlewRate(int slewRate)
 {
   unsigned long configVal = getParam(GATECFG1);
-  
+
   // These bits live in GATECFG1 7:0, so the mask is 0x00FF.
   configVal &= ~(0x00FF);
   //Now, OR in the masked incoming value.
