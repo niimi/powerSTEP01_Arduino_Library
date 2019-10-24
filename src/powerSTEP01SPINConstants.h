@@ -158,6 +158,10 @@
 #define KVAL_RUN             0x0A
 #define KVAL_ACC             0x0B
 #define KVAL_DEC             0x0C
+#define TVAL_HOLD            0x09
+#define TVAL_RUN             0x0A
+#define TVAL_ACC             0x0B
+#define TVAL_DEC             0x0C
 #define INT_SPD              0x0D
 #define ST_SLP               0x0E
 #define FN_SLP_ACC           0x0F

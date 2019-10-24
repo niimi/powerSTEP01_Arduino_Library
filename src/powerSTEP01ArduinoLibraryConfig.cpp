@@ -35,12 +35,55 @@ void powerSTEP::configStepMode(byte stepMode)
 
   // Now push the change to the chip.
   setParam(STEP_MODE, (unsigned long)stepModeConfig);
+
+  SerialUSB.print("config step mode: ");
+  SerialUSB.print(STEP_MODE, BIN);
+  SerialUSB.print(", ");
+  SerialUSB.print(stepModeConfig, BIN);
+  SerialUSB.println();
 }
 
 byte powerSTEP::getStepMode() {
   return (byte)(getParam(STEP_MODE) & 0x07);
 }
+void powerSTEP::voltageMode(byte stepMode) {
+	  // Only some of these bits are useful (the lower three). We'll extract the
+	  //  current contents, clear those three bits, then set them accordingly.
+	  byte stepModeConfig = (byte)getParam(STEP_MODE);
+	  stepModeConfig &= 0xF0;
 
+	  // Now we can OR in the new bit settings. Mask the argument so we don't
+	  //  accidentally the other bits, if the user sends us a non-legit value.
+	  stepModeConfig |= (stepMode&0x07);
+
+	  // Now push the change to the chip.
+	  setParam(STEP_MODE, (unsigned long)stepModeConfig);
+
+	    SerialUSB.print("voltage mode: ");
+	    SerialUSB.print(STEP_MODE, BIN);
+	    SerialUSB.print(", ");
+	    SerialUSB.print(stepModeConfig, BIN);
+	    SerialUSB.println();
+}
+void powerSTEP::currentMode(byte stepMode) {
+	  // Only some of these bits are useful (the lower three). We'll extract the
+	  //  current contents, clear those three bits, then set them accordingly.
+	  byte stepModeConfig = (byte)getParam(STEP_MODE);
+	  stepModeConfig &= 0xF8;
+	  stepModeConfig |= 0x8;
+	  // Now we can OR in the new bit settings. Mask the argument so we don't
+	  //  accidentally the other bits, if the user sends us a non-legit value.
+	  stepModeConfig |= (stepMode&0x07);
+
+	  // Now push the change to the chip.
+	  setParam(STEP_MODE, (unsigned long)stepModeConfig);
+
+	  SerialUSB.print("current mode: ");
+	  SerialUSB.print(STEP_MODE, BIN);
+	  SerialUSB.print(", ");
+	  SerialUSB.print(stepModeConfig, BIN);
+	  SerialUSB.println();
+}
 // This is the maximum speed the dSPIN will attempt to produce.
 void powerSTEP::setMaxSpeed(float stepsPerSecond)
 {
@@ -329,6 +372,52 @@ void powerSTEP::setHoldKVAL(byte kvalInput)
 byte powerSTEP::getHoldKVAL()
 {
   return (byte) getParam(KVAL_HOLD);
+}
+
+
+// The KVAL registers are...weird. I don't entirely understand how they differ
+//  from the microstepping, but if you have trouble getting the motor to run,
+//  tweaking KVAL has proven effective in the past. There's a separate register
+//  for each case: running, static, accelerating, and decelerating.
+
+void powerSTEP::setAccTVAL(byte tvalInput)
+{
+	setParam(TVAL_ACC, tvalInput);
+}
+
+byte powerSTEP::getAccTVAL()
+{
+	return (byte) getParam(TVAL_ACC);
+}
+
+void powerSTEP::setDecTVAL(byte tvalInput)
+{
+	setParam(TVAL_DEC, tvalInput);
+}
+
+byte powerSTEP::getDecTVAL()
+{
+	return (byte) getParam(TVAL_DEC);
+}
+
+void powerSTEP::setRunTVAL(byte tvalInput)
+{
+	setParam(TVAL_RUN, tvalInput);
+}
+
+byte powerSTEP::getRunTVAL()
+{
+	return (byte) getParam(TVAL_RUN);
+}
+
+void powerSTEP::setHoldTVAL(byte tvalInput)
+{
+	setParam(TVAL_HOLD, tvalInput);
+}
+
+byte powerSTEP::getHoldTVAL()
+{
+	return (byte) getParam(TVAL_HOLD);
 }
 
 // Enable or disable the low-speed optimization option. With LSPD_OPT enabled,

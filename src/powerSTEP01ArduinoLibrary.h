@@ -11,133 +11,147 @@
 
 class powerSTEP
 {
-  public:
-    // Constructors. We'll ALWAYS want a CS pin and a reset pin, but we may
-    //  not want a busy pin. By using two constructors, we make it easy to
-    //  allow that.
-    powerSTEP(int position, int CSPin, int resetPin, int busyPin);
-    powerSTEP(int position, int CSPin, int resetPin);
+	public:
+	// Constructors. We'll ALWAYS want a CS pin and a reset pin, but we may
+	//  not want a busy pin. By using two constructors, we make it easy to
+	//  allow that.
+	powerSTEP(int position, int CSPin, int resetPin, int busyPin);
+	powerSTEP(int position, int CSPin, int resetPin);
 
-    void SPIPortConnect(SPIClass *SPIPort);
+	void SPIPortConnect(SPIClass *SPIPort);
 
-    // These are super-common things to do: checking if the device is busy,
-    //  and checking the status of the device. We make a couple of functions
-    //  for that.
-    int busyCheck();
-    int getStatus();
+	// These are super-common things to do: checking if the device is busy,
+	//  and checking the status of the device. We make a couple of functions
+	//  for that.
+	int busyCheck();
+	int getStatus();
 
-    // Some users will want to do things other than what we explicitly provide
-    //  nice functions for; give them unrestricted access to the parameter
-    //  registers.
-    void setParam(byte param, unsigned long value);
-    long getParam(byte param);
+	// Some users will want to do things other than what we explicitly provide
+	//  nice functions for; give them unrestricted access to the parameter
+	//  registers.
+	void setParam(byte param, unsigned long value);
+	long getParam(byte param);
 
-    // Lots of people just want Commands That Work; let's provide them!
-    // Start with some configuration commands
-    void setLoSpdOpt(boolean enable);
-    void configSyncPin(byte pinFunc, byte syncSteps);
-    void configStepMode(byte stepMode);
-    void setMaxSpeed(float stepsPerSecond);
-    void setMinSpeed(float stepsPerSecond);
-    void setFullSpeed(float stepsPerSecond);
-    void setAcc(float stepsPerSecondPerSecond);
-    void setDec(float stepsPerSecondPerSecond);
+	// Lots of people just want Commands That Work; let's provide them!
+	// Start with some configuration commands
+	void setLoSpdOpt(boolean enable);
+	void configSyncPin(byte pinFunc, byte syncSteps);
+	void configStepMode(byte stepMode);
+
+	void voltageMode(byte stepMode);
+	void currentMode(byte stepMode);
+
+	void setMaxSpeed(float stepsPerSecond);
+	void setMinSpeed(float stepsPerSecond);
+	void setFullSpeed(float stepsPerSecond);
+	void setAcc(float stepsPerSecondPerSecond);
+	void setDec(float stepsPerSecondPerSecond);
 	void setMaxSpeedRaw(unsigned long integerSpeed);
 	void setMinSpeedRaw(unsigned long integerSpeed);
 	void setFullSpeedRaw(unsigned long integerSpeed);
 	void setAccRaw(unsigned long integerSpeed);
 	void setDecRaw(unsigned long integerSpeed);
-    void setOCThreshold(byte threshold);
-    void setPWMFreq(int divisor, int multiplier);
-    void setSlewRate(int slewRate);
-    void setOCShutdown(int OCShutdown);
-    void setVoltageComp(int vsCompMode);
-    void setSwitchMode(int switchMode);
-    void setOscMode(int oscillatorMode);
-    void setAccKVAL(byte kvalInput);
-    void setDecKVAL(byte kvalInput);
-    void setRunKVAL(byte kvalInput);
-    void setHoldKVAL(byte kvalInput);
+	void setOCThreshold(byte threshold);
+	void setPWMFreq(int divisor, int multiplier);
+	void setSlewRate(int slewRate);
+	void setOCShutdown(int OCShutdown);
+	void setVoltageComp(int vsCompMode);
+	void setSwitchMode(int switchMode);
+	void setOscMode(int oscillatorMode);
+	void setAccKVAL(byte kvalInput);
+	void setDecKVAL(byte kvalInput);
+	void setRunKVAL(byte kvalInput);
+	void setHoldKVAL(byte kvalInput);
 
-    boolean getLoSpdOpt();
-    // getSyncPin
-    byte getStepMode();
-    float getMaxSpeed();
-    float getMinSpeed();
-    float getFullSpeed();
-    float getAcc();
-    float getDec();
+	void setAccTVAL(byte tvalInput);
+	void setDecTVAL(byte tvalInput);
+	void setRunTVAL(byte tvalInput);
+	void setHoldTVAL(byte tvalInput);
+
+	boolean getLoSpdOpt();
+	// getSyncPin
+	byte getStepMode();
+	float getMaxSpeed();
+	float getMinSpeed();
+	float getFullSpeed();
+	float getAcc();
+	float getDec();
 	unsigned long getMaxSpeedRaw();
 	unsigned long getMinSpeedRaw();
 	unsigned long getFullSpeedRaw();
 	unsigned long getAccRaw();
 	unsigned long getDecRaw();
-    byte getOCThreshold();
-    int getPWMFreqDivisor();
-    int getPWMFreqMultiplier();
-    int getSlewRate();
-    int getOCShutdown();
-    int getVoltageComp();
-    int getSwitchMode();
-    int getOscMode();
-    byte getAccKVAL();
-    byte getDecKVAL();
-    byte getRunKVAL();
-    byte getHoldKVAL();
+	byte getOCThreshold();
+	int getPWMFreqDivisor();
+	int getPWMFreqMultiplier();
+	int getSlewRate();
+	int getOCShutdown();
+	int getVoltageComp();
+	int getSwitchMode();
+	int getOscMode();
+	byte getAccKVAL();
+	byte getDecKVAL();
+	byte getRunKVAL();
+	byte getHoldKVAL();
 
-    // ...and now, operational commands.
-    long getPos();
-    long getMark();
-    void run(byte dir, float stepsPerSec);
+	byte getAccTVAL();
+	byte getDecTVAL();
+	byte getRunTVAL();
+	byte getHoldTVAL();
+
+	// ...and now, operational commands.
+	long getPos();
+	long getMark();
+	void run(byte dir, float stepsPerSec);
 	void runRaw(byte dir, unsigned long integerSpeed);
-    void stepClock(byte dir);
-    void move(byte dir, unsigned long numSteps);
-    void goTo(long pos);
-    void goToDir(byte dir, long pos);
-    void goUntil(byte action, byte dir, float stepsPerSec);
+	void stepClock(byte dir);
+	void move(byte dir, unsigned long numSteps);
+	void goTo(long pos);
+	void goToDir(byte dir, long pos);
+	void goUntil(byte action, byte dir, float stepsPerSec);
 	void goUntilRaw(byte action, byte dir, unsigned long integerSpeed);
-    void releaseSw(byte action, byte dir);
-    void goHome();
-    void goMark();
-    void setMark(long newMark);
-    void setPos(long newPos);
-    void resetPos();
-    void resetDev();
-    void softStop();
-    void hardStop();
-    void softHiZ();
-    void hardHiZ();
+	void releaseSw(byte action, byte dir);
+	void goHome();
+	void goMark();
+	void setMark(long newMark);
+	void setPos(long newPos);
+	void resetPos();
+	void resetDev();
+	void softStop();
+	void hardStop();
+	void softHiZ();
+	void hardHiZ();
 
 
-  private:
-    byte SPIXfer(byte data);
-    long xferParam(unsigned long value, byte bitLen);
-    long paramHandler(byte param, unsigned long value);
+	private:
+	byte SPIXfer(byte data);
+	long xferParam(unsigned long value, byte bitLen);
+	long paramHandler(byte param, unsigned long value);
 
-    // Support functions for converting from user units to L6470 units
-    unsigned long accCalc(float stepsPerSecPerSec);
-    unsigned long decCalc(float stepsPerSecPerSec);
-    unsigned long minSpdCalc(float stepsPerSec);
-    unsigned long maxSpdCalc(float stepsPerSec);
-    unsigned long FSCalc(float stepsPerSec);
-    unsigned long intSpdCalc(float stepsPerSec);
-    unsigned long spdCalc(float stepsPerSec);
+	// Support functions for converting from user units to L6470 units
+	unsigned long accCalc(float stepsPerSecPerSec);
+	unsigned long decCalc(float stepsPerSecPerSec);
+	unsigned long minSpdCalc(float stepsPerSec);
+	unsigned long maxSpdCalc(float stepsPerSec);
+	unsigned long FSCalc(float stepsPerSec);
+	unsigned long intSpdCalc(float stepsPerSec);
+	unsigned long spdCalc(float stepsPerSec);
 
-    // Support functions for converting from L6470 to user units
-    float accParse(unsigned long stepsPerSecPerSec);
-    float decParse(unsigned long stepsPerSecPerSec);
-    float minSpdParse(unsigned long stepsPerSec);
-    float maxSpdParse(unsigned long stepsPerSec);
-    float FSParse(unsigned long stepsPerSec);
-    float intSpdParse(unsigned long stepsPerSec);
-    float spdParse(unsigned long stepsPerSec);
+	// Support functions for converting from L6470 to user units
+	float accParse(unsigned long stepsPerSecPerSec);
+	float decParse(unsigned long stepsPerSecPerSec);
+	float minSpdParse(unsigned long stepsPerSec);
+	float maxSpdParse(unsigned long stepsPerSec);
+	float FSParse(unsigned long stepsPerSec);
+	float intSpdParse(unsigned long stepsPerSec);
+	float spdParse(unsigned long stepsPerSec);
 
-    int _CSPin;
-    int _resetPin;
-    int _busyPin;
-    int _position;
-    static int _numBoards;
-    SPIClass *_SPI;
+	int _CSPin;
+	int _resetPin;
+	int _busyPin;
+	int _position;
+	static int _numBoards;
+	SPIClass *_SPI;
 };
 
 // User constants for public functions.
@@ -224,8 +238,8 @@ class powerSTEP
 // External switch input functionality.
 #define SW_HARD_STOP            0x0000 // Default; hard stop motor on switch.
 #define SW_USER                 0x0010 // Tie to the GoUntil and ReleaseSW
-                                       //  commands to provide jog function.
-                                       //  See page 25 of datasheet.
+//  commands to provide jog function.
+//  See page 25 of datasheet.
 
 // Clock functionality
 #define INT_16MHZ               0x0000 // Internal 16MHz, no output
