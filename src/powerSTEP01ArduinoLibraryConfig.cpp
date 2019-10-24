@@ -35,12 +35,6 @@ void powerSTEP::configStepMode(byte stepMode)
 
   // Now push the change to the chip.
   setParam(STEP_MODE, (unsigned long)stepModeConfig);
-
-  SerialUSB.print("config step mode: ");
-  SerialUSB.print(STEP_MODE, BIN);
-  SerialUSB.print(", ");
-  SerialUSB.print(stepModeConfig, BIN);
-  SerialUSB.println();
 }
 
 byte powerSTEP::getStepMode() {
@@ -58,12 +52,6 @@ void powerSTEP::voltageMode(byte stepMode) {
 
 	  // Now push the change to the chip.
 	  setParam(STEP_MODE, (unsigned long)stepModeConfig);
-
-	    SerialUSB.print("voltage mode: ");
-	    SerialUSB.print(STEP_MODE, BIN);
-	    SerialUSB.print(", ");
-	    SerialUSB.print(stepModeConfig, BIN);
-	    SerialUSB.println();
 }
 void powerSTEP::currentMode(byte stepMode) {
 	  // Only some of these bits are useful (the lower three). We'll extract the
@@ -77,12 +65,6 @@ void powerSTEP::currentMode(byte stepMode) {
 
 	  // Now push the change to the chip.
 	  setParam(STEP_MODE, (unsigned long)stepModeConfig);
-
-	  SerialUSB.print("current mode: ");
-	  SerialUSB.print(STEP_MODE, BIN);
-	  SerialUSB.print(", ");
-	  SerialUSB.print(stepModeConfig, BIN);
-	  SerialUSB.println();
 }
 // This is the maximum speed the dSPIN will attempt to produce.
 void powerSTEP::setMaxSpeed(float stepsPerSecond)
